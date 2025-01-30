@@ -93,3 +93,74 @@ app.post("/books/", async (request, response) => {
   const bookId = responseDb.lastId;
   response.send({ bookId: bookId });
 });
+
+// Put Book Api
+
+app.put("/books/:bookId/", async (request, response) => {
+  const bookDetails = request.body;
+  const { bookId } = request.params;
+  const {
+    title,
+    authorId,
+    rating,
+    ratingCount,
+    reviewCount,
+    description,
+    pages,
+    dateOfPublication,
+    editionLanguage,
+    price,
+    onlineStores,
+  } = bookDetails;
+
+  const updateBookQuery = `
+    UPDATE
+      book
+    SET
+      title='${title}',
+      author_id=${authorId},
+      rating=${rating},
+      rating_count=${ratingCount},
+      review_count=${reviewCount},
+      description='${description}',
+      pages=${pages},
+      date_of_publication='${dateOfPublication}',
+      edition_language='${editionLanguage}',
+      price= ${price},
+      online_stores='${onlineStores}'
+    WHERE
+      book_id = ${bookId}`;
+
+  const dbResponse = await db.run(updateBookQuery);
+  response.send("Book Updated Succesfully");
+});
+
+//Delete Book Api
+
+app.delete("/books/:bookId/", async (request, response) => {
+  const { bookId } = request.params;
+  const deleteBookQuery = `
+    DELETE FROM
+        book
+    WHERE
+        book_id = ${bookId};`;
+
+  const dbResponse = await db.run(deleteBookQuery);
+  response.send("Book Deleted Successfully");
+});
+
+//Get Books according to AuthorId
+
+app.get("/authors/:authorId/books/", async (request, response) => {
+  const { authorId } = request.params;
+  const getAuthorBooksQuery = `
+    SELECT
+    *
+    FROM
+        book
+    WHERE
+        author_id = ${authorId};`;
+
+  const dbResponse = await db.all(getAuthorBooksQuery);
+  response.send(dbResponse);
+});
